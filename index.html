@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mess Management Pro</title>
+    <style>
+        :root { --primary: #2e7d32; --secondary: #1976d2; --danger: #d32f2f; --bg: #f8f9fa; }
+        body { font-family: 'Segoe UI', sans-serif; background-color: var(--bg); padding: 20px; display: flex; justify-content: center; }
+        .container { width: 100%; max-width: 500px; }
+        .card { background: white; padding: 25px; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); margin-bottom: 20px; }
+        h2, h3 { margin-top: 0; color: #333; border-bottom: 2px solid var(--primary); padding-bottom: 8px; }
+        label { display: block; margin: 15px 0 5px; font-weight: 600; font-size: 0.9rem; color: #555; }
+        input, select, textarea { width: 100%; padding: 12px; border: 1.5px solid #ddd; border-radius: 10px; box-sizing: border-box; font-size: 1rem; }
+        button { width: 100%; padding: 14px; border: none; border-radius: 10px; cursor: pointer; font-weight: bold; margin-top: 15px; }
+        .btn-save { background-color: var(--primary); color: white; }
+        .btn-calc { background-color: var(--secondary); color: white; }
+        .btn-reset { background-color: #fff; color: var(--danger); border: 1px solid var(--danger); margin-top: 20px; }
+        #summaryBox { display: none; background: #e3f2fd; }
+        .stat-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid rgba(0,0,0,0.05); }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="card">
+        <h2>Mess Manager</h2>
+        
+        <label>Entry Type</label>
+        <select id="entryType" onchange="toggleFields()">
+            <option value="meal">Meal Count</option>
+            <option value="bazar">Bazar Expense</option>
+        </select>
+
+        <label>Date</label>
+        <input type="date" id="entryDate">
+
+        <div id="mealSection">
+            <label>Member Name</label>
+            <select id="userName">
+                <option>Farhan</option><option>Liaan</option><option>Turjo</option><option>Nafis</option>
+            </select>
+            <label>Meal Count</label>
+            <input type="number" step="0.1" id="mealCount" placeholder="e.g. 1.0">
+        </div>
+
+        <div id="bazarSection" style="display:none;">
+            <label>Who Paid?</label>
+            <select id="bazarPayer">
+                <option>Farhan</option><option>Liaan</option><option>Turjo</option><option>Nafis</option>
+            </select>
+            <label>Bazar Description</label>
+            <input type="text" id="bazarDesc" placeholder="e.g. Chicken, Rice, Oil">
+            <label>Total Cost</label>
+            <input type="number" id="bazarCost" placeholder="Enter amount">
+        </div>
+
+        <button class="btn-save" onclick="submitToSheets()">Save Entry</button>
+        <button class="btn-calc" onclick="getSummary()">Calculate Summary</button>
+    </div>
+
+    <div id="summaryBox" class="card">
+        <h3>Current Summary</h3>
+        <div id="summaryContent"></div>
+        <button class="btn-reset" onclick="archiveAndReset()">Archive & Reset Period</button>
+    </div>
+</div>
+
+<script>
+    const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbx8D1dmzGbThheWuuvWn7pNj7xvGYYMei-yQjGIWt4mJoUdlupCYeSF0cAzuM-EnpEp/exec";
+    document.getElementById('entryDate').valueAsDate = new Date();
+
+    function toggleFields() {
+        const type = document.getElementById('entryType').value;
+        document.getElementById('mealSection').style.display = type === 'meal' ? 'block' : 'none';
+        document.getElementById('bazarSection').style.display = type === 'bazar' ? 'block' : 'none';
+    }
+
+    async function submitToSheets() {
+        const type = document.getElementById('entryType').value;
+        const date = document.getElementById('entryDate').value;
+        let payload = { type: type, date: date };
+
+        if (type === 'meal') {
+            payload.name = document.getElementById('userName').value;
+            payload.mealCount = parseFloat(document.getElementById('mealCount').value);
+        } else {
+            payload.payer = document.getElementById('bazarPayer').value;
+            payload.description = document.getElementById('bazarDesc').value;
+            payload.cost = parseFloat(document.getElementById('bazarCost').value);
+        }
+
+        alert("Saving...");
+        await fetch(WEB_APP_URL, { method: "POST", mode: "no-cors", body: JSON.stringify(payload) });
+        alert("Success!");
+        location.reload();
+    }
+
+    async function getSummary() {
+        const box = document.getElementById('summaryBox');
+        const content = document.getElementById('summaryContent');
+        box.style.display = "block";
+        content.innerHTML = "Calculating...";
+
+        const response = await fetch(WEB_APP_URL);
+        const data = await response.json();
+
+        let html = `
+            <div class="stat-row"><span>Total Bazar:</span> <b>${data.totalBazar}</b></div>
+            <div class="stat-row"><span>Total Meals:</span> <b>${data.totalMeals}</b></div>
+            <div style="font-size:1.2rem; color:blue; text-align:center; margin:10px 0;">Per Meal: ${data.perMealCost}</div>
+            <hr>
+        `;
+        for (let name in data.individual) {
+            let cost = (data.individual[name] * data.perMealCost).toFixed(2);
+            html += `<div class="stat-row"><span>${name} (${data.individual[name]} meals):</span> <b>${cost}</b></div>`;
+        }
+        content.innerHTML = html;
+    }
+
+    async function archiveAndReset() {
+        if(!confirm("Archive current data and start fresh?")) return;
+        await fetch(WEB_APP_URL, { method: "POST", mode: "no-cors", body: JSON.stringify({ type: "reset" }) });
+        alert("Archived!");
+        location.reload();
+    }
+</script>
+</body>
+</html>
