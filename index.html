@@ -4,51 +4,122 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mess Manager Pro</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
-        :root { --glass: rgba(255, 255, 255, 0.8); --accent: #6c5ce7; --bg: #f0f2f5; }
-        body { 
-            margin: 0; font-family: 'Poppins', sans-serif; 
+        :root {
+            --glass: rgba(255, 255, 255, 0.85);
+            --accent: #6c5ce7;
+            --secondary: #a29bfe;
+            --danger: #ff7675;
+            --success: #00b894;
+        }
+
+        body {
+            margin: 0;
+            font-family: 'Poppins', sans-serif;
             background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
-            background-size: 400% 400%; animation: gradient 15s ease infinite;
-            min-height: 100vh; display: flex; justify-content: center; padding: 20px;
-        }
-        @keyframes gradient { 0% {background-position: 0% 50%;} 50% {background-position: 100% 50%;} 100% {background-position: 0% 50%;} }
-        
-        .container { width: 100%; max-width: 480px; }
-        .card { 
-            background: var(--glass); backdrop-filter: blur(15px); padding: 25px; 
-            border-radius: 24px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); margin-bottom: 20px;
-            border: 1px solid rgba(255,255,255,0.3);
-        }
-        
-        .today-info { text-align: center; margin-bottom: 20px; }
-        .today-info h1 { font-size: 3rem; margin: 0; color: var(--accent); }
-        .today-info p { margin: 0; font-size: 0.8rem; text-transform: uppercase; color: #666; font-weight: bold; }
-
-        label { display: block; margin: 15px 0 5px; font-weight: 600; font-size: 0.8rem; color: #444; }
-        input, select { 
-            width: 100%; padding: 12px; border: none; border-radius: 12px; 
-            background: rgba(255,255,255,0.6); margin-bottom: 10px; font-size: 1rem;
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            padding: 20px;
+            color: #2d3436;
         }
 
-        button { 
-            width: 100%; padding: 15px; border: none; border-radius: 12px; 
-            font-weight: bold; cursor: pointer; transition: 0.3s;
-        }
-        .btn-save { background: var(--accent); color: white; margin-top: 10px; }
-        .btn-calc { background: white; color: var(--accent); margin-top: 10px; border: 1px solid var(--accent); }
-        
-        #lastEntryStatus { 
-            text-align: center; font-size: 0.75rem; color: rgba(255,255,255,0.9); 
-            margin-top: 10px; font-style: italic; background: rgba(0,0,0,0.1);
-            padding: 8px; border-radius: 20px;
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
         }
 
-        .stat-grid { display: flex; gap: 10px; margin: 15px 0; }
-        .stat-card { flex: 1; background: white; padding: 15px; border-radius: 15px; text-align: center; }
-        .indiv-row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #eee; }
+        .container { width: 100%; max-width: 480px; animation: fadeIn 0.8s ease-out; }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .card {
+            background: var(--glass);
+            backdrop-filter: blur(15px);
+            padding: 25px;
+            border-radius: 24px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+            border: 1px solid rgba(255,255,255,0.4);
+            margin-bottom: 20px;
+            transition: 0.3s;
+        }
+
+        .today-info {
+            background: rgba(108, 92, 231, 0.15);
+            border: 1px dashed var(--accent);
+            padding: 15px;
+            border-radius: 18px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .today-info p { margin: 0; font-size: 0.8rem; text-transform: uppercase; font-weight: bold; color: #555; }
+        .today-info h1 { margin: 5px 0 0; color: var(--accent); font-size: 2.5rem; }
+
+        label { display: block; margin: 15px 0 5px; font-weight: 600; font-size: 0.85rem; color: #444; }
+
+        input, select {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 12px;
+            background: rgba(255,255,255,0.6);
+            font-size: 1rem;
+            box-sizing: border-box;
+            transition: 0.3s;
+        }
+
+        input:focus { outline: 2px solid var(--accent); background: white; }
+
+        button {
+            width: 100%;
+            padding: 15px;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            font-weight: 700;
+            font-size: 1rem;
+            margin-top: 15px;
+            transition: 0.3s;
+        }
+
+        .btn-save { background: var(--accent); color: white; box-shadow: 0 4px 15px rgba(108,92,231,0.3); }
+        .btn-calc { background: white; color: var(--accent); border: 1.5px solid var(--accent); }
+        
+        #lastEntryStatus {
+            text-align: center;
+            font-size: 0.75rem;
+            font-style: italic;
+            color: white;
+            background: rgba(0,0,0,0.2);
+            padding: 8px;
+            border-radius: 50px;
+            margin-top: 10px;
+        }
+
+        .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 20px; }
+        .stat-item { background: white; padding: 12px; border-radius: 12px; text-align: center; }
+        .stat-item span { font-size: 0.7rem; color: #888; text-transform: uppercase; }
+        .stat-item b { display: block; font-size: 1.1rem; color: var(--accent); }
+
+        .indiv-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(0,0,0,0.05);
+            font-size: 0.95rem;
+        }
+
+        .btn-reset { background: transparent; color: var(--danger); border: 1px solid var(--danger); font-size: 0.8rem; margin-top: 25px; }
+        .btn-reset:hover { background: var(--danger); color: white; }
     </style>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
 </head>
 <body>
 
@@ -59,8 +130,9 @@
             <h1 id="todayTotal">0.0</h1>
         </div>
 
+        <label>Entry Type</label>
         <select id="entryType" onchange="toggleFields()">
-            <option value="meal">🍽️ Log Meals</option>
+            <option value="meal">🍽️ Log Meal</option>
             <option value="bazar">💰 Log Bazar</option>
         </select>
 
@@ -72,39 +144,42 @@
             <select id="userName">
                 <option>Farhan</option><option>Liaan</option><option>Turjo</option><option>Nafis</option>
             </select>
-            <label>Count (0+)</label>
+            <label>Meal Count (0 or more)</label>
             <input type="number" step="0.1" min="0" id="mealCount" placeholder="e.g. 1.0">
         </div>
 
         <div id="bazarSection" style="display:none;">
-            <label>Investor</label>
+            <label>Investor (Who Paid?)</label>
             <select id="bazarPayer">
                 <option>Farhan</option><option>Liaan</option><option>Turjo</option><option>Nafis</option>
             </select>
             <label>Description</label>
-            <input type="text" id="bazarDesc" placeholder="e.g. Eggs, Oil">
-            <label>Amount</label>
+            <input type="text" id="bazarDesc" placeholder="Items bought...">
+            <label>Cost</label>
             <input type="number" id="bazarCost" placeholder="0.00">
         </div>
 
-        <button class="btn-save" onclick="submitData()">Save Activity</button>
+        <button class="btn-save" id="saveBtn" onclick="submitData()">Save Activity</button>
         <button class="btn-calc" onclick="showSummary()">View Analytics</button>
     </div>
 
-    <div id="lastEntryStatus">Checking last activity...</div>
+    <div id="lastEntryStatus">Syncing with Sheets...</div>
 
     <div id="summaryBox" class="card" style="display:none;">
         <h3>Calculations</h3>
         <div id="summaryContent"></div>
-        <button style="background:#ff7675; color:white; margin-top:20px;" onclick="archiveAndReset()">Finish & Archive</button>
+        <button class="btn-reset" onclick="archiveAndReset()">Archive & Reset Period</button>
     </div>
 </div>
 
 <script>
-    const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwA96Cq2siLZrDCvOQJtbH5jbqU5ePd6-OWAH9XQEJp3zWQqPTDAFCUHN1sgxno6Nbz/exec";
+    // 1. UPDATE THIS URL
+    const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbw6UN5HbqqnOUMOQgwx2TIyK0ewvcoTBG6G_EDKP5gis_TeUBj81rMYDzD1buB51Fjn/exec";
+
+    // Initialize Date
     document.getElementById('entryDate').valueAsDate = new Date();
 
-    // Auto-update on load
+    // Load Data on Startup
     window.onload = refreshStatus;
 
     function toggleFields() {
@@ -113,33 +188,53 @@
         document.getElementById('bazarSection').style.display = isMeal ? 'none' : 'block';
     }
 
+    async function refreshStatus() {
+        try {
+            const response = await fetch(WEB_APP_URL);
+            const data = await response.json();
+            document.getElementById('todayTotal').innerText = data.todayMeals;
+            document.getElementById('lastEntryStatus').innerText = "Last Entry: " + data.lastEntry;
+            window.currentData = data; // Cache data for summary
+        } catch (e) {
+            document.getElementById('lastEntryStatus').innerText = "Last Entry: System Offline";
+        }
+    }
+
     async function submitData() {
         const type = document.getElementById('entryType').value;
-        let payload = { type: type, date: document.getElementById('entryDate').value };
-        
+        const date = document.getElementById('entryDate').value;
+        let payload = { type: type, date: date };
+
         if (type === 'meal') {
+            const count = parseFloat(document.getElementById('mealCount').value);
+            if (isNaN(count) || count < 0) return alert("Enter a valid meal count");
             payload.name = document.getElementById('userName').value;
-            payload.mealCount = parseFloat(document.getElementById('mealCount').value || 0);
+            payload.mealCount = count;
         } else {
             payload.payer = document.getElementById('bazarPayer').value;
-            payload.description = document.getElementById('bazarDesc').value;
+            payload.description = document.getElementById('bazarDesc').value || "Bazar";
             payload.cost = parseFloat(document.getElementById('bazarCost').value || 0);
         }
 
-        document.querySelector('.btn-save').innerText = "Saving...";
-        await fetch(WEB_APP_URL, { method: "POST", mode: "no-cors", body: JSON.stringify(payload) });
-        location.reload();
-    }
+        const btn = document.getElementById('saveBtn');
+        btn.innerText = "Saving...";
+        btn.disabled = true;
 
-    async function refreshStatus() {
-        const response = await fetch(WEB_APP_URL);
-        const data = await response.json();
-        document.getElementById('todayTotal').innerText = data.todayMeals;
-        document.getElementById('lastEntryStatus').innerText = "Last Entry: " + data.lastEntry;
-        window.currentData = data; // Save for summary box
+        try {
+            await fetch(WEB_APP_URL, { method: "POST", mode: "no-cors", body: JSON.stringify(payload) });
+            btn.innerText = "Success! 🎉";
+            setTimeout(() => {
+                location.reload();
+            }, 1000);
+        } catch (e) {
+            alert("Error saving data");
+            btn.disabled = false;
+            btn.innerText = "Save Activity";
+        }
     }
 
     function showSummary() {
+        if (!window.currentData) return alert("Loading data, please wait...");
         const data = window.currentData;
         const box = document.getElementById('summaryBox');
         const content = document.getElementById('summaryContent');
@@ -147,10 +242,11 @@
         
         content.innerHTML = `
             <div class="stat-grid">
-                <div class="stat-card"><small>Bazar</small><br><b>৳${data.totalBazar}</b></div>
-                <div class="stat-card"><small>Meals</small><br><b>${data.totalMeals}</b></div>
+                <div class="stat-item"><span>Total Bazar</span><b>৳${data.totalBazar}</b></div>
+                <div class="stat-item"><span>Total Meals</span><b>${data.totalMeals}</b></div>
             </div>
-            <div class="stat-card" style="margin-bottom:20px"><small>Meal Rate</small><br><b style="color:var(--accent)">৳${data.perMealCost}</b></div>
+            <div class="stat-item" style="margin: 15px 0"><span>Meal Rate</span><b style="font-size: 1.5rem; color: var(--accent)">৳${data.perMealCost}</b></div>
+            <h4 style="margin: 20px 0 10px; font-size: 0.9rem; text-transform: uppercase;">Individual Bills:</h4>
         `;
         
         for (let name in data.individual) {
@@ -166,7 +262,8 @@
     }
 
     async function archiveAndReset() {
-        if(!confirm("Archive and reset?")) return;
+        if(!confirm("Are you sure? This will archive all current data and reset the month.")) return;
+        document.getElementById('lastEntryStatus').innerText = "Archiving...";
         await fetch(WEB_APP_URL, { method: "POST", mode: "no-cors", body: JSON.stringify({ type: "reset" }) });
         location.reload();
     }
