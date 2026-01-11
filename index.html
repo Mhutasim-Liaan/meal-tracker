@@ -6,119 +6,22 @@
     <title>Mess Manager Pro</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
-        :root {
-            --glass: rgba(255, 255, 255, 0.85);
-            --accent: #6c5ce7;
-            --secondary: #a29bfe;
-            --danger: #ff7675;
-            --success: #00b894;
-        }
-
-        body {
-            margin: 0;
-            font-family: 'Poppins', sans-serif;
-            background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
-            background-size: 400% 400%;
-            animation: gradientBG 15s ease infinite;
-            min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            padding: 20px;
-            color: #2d3436;
-        }
-
-        @keyframes gradientBG {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
-        }
-
-        .container { width: 100%; max-width: 480px; animation: fadeIn 0.8s ease-out; }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .card {
-            background: var(--glass);
-            backdrop-filter: blur(15px);
-            padding: 25px;
-            border-radius: 24px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
-            border: 1px solid rgba(255,255,255,0.4);
-            margin-bottom: 20px;
-            transition: 0.3s;
-        }
-
-        .today-info {
-            background: rgba(108, 92, 231, 0.15);
-            border: 1px dashed var(--accent);
-            padding: 15px;
-            border-radius: 18px;
-            text-align: center;
-            margin-bottom: 20px;
-        }
-
-        .today-info p { margin: 0; font-size: 0.8rem; text-transform: uppercase; font-weight: bold; color: #555; }
-        .today-info h1 { margin: 5px 0 0; color: var(--accent); font-size: 2.5rem; }
-
-        label { display: block; margin: 15px 0 5px; font-weight: 600; font-size: 0.85rem; color: #444; }
-
-        input, select {
-            width: 100%;
-            padding: 12px;
-            border: none;
-            border-radius: 12px;
-            background: rgba(255,255,255,0.6);
-            font-size: 1rem;
-            box-sizing: border-box;
-            transition: 0.3s;
-        }
-
-        input:focus { outline: 2px solid var(--accent); background: white; }
-
-        button {
-            width: 100%;
-            padding: 15px;
-            border: none;
-            border-radius: 12px;
-            cursor: pointer;
-            font-weight: 700;
-            font-size: 1rem;
-            margin-top: 15px;
-            transition: 0.3s;
-        }
-
-        .btn-save { background: var(--accent); color: white; box-shadow: 0 4px 15px rgba(108,92,231,0.3); }
-        .btn-calc { background: white; color: var(--accent); border: 1.5px solid var(--accent); }
-        
-        #lastEntryStatus {
-            text-align: center;
-            font-size: 0.75rem;
-            font-style: italic;
-            color: white;
-            background: rgba(0,0,0,0.2);
-            padding: 8px;
-            border-radius: 50px;
-            margin-top: 10px;
-        }
-
-        .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 20px; }
-        .stat-item { background: white; padding: 12px; border-radius: 12px; text-align: center; }
-        .stat-item span { font-size: 0.7rem; color: #888; text-transform: uppercase; }
-        .stat-item b { display: block; font-size: 1.1rem; color: var(--accent); }
-
-        .indiv-row {
-            display: flex;
-            justify-content: space-between;
-            padding: 10px 0;
-            border-bottom: 1px solid rgba(0,0,0,0.05);
-            font-size: 0.95rem;
-        }
-
-        .btn-reset { background: transparent; color: var(--danger); border: 1px solid var(--danger); font-size: 0.8rem; margin-top: 25px; }
-        .btn-reset:hover { background: var(--danger); color: white; }
+        :root { --glass: rgba(255, 255, 255, 0.85); --accent: #6c5ce7; --danger: #ff7675; --wa: #25D366; }
+        body { margin: 0; font-family: 'Poppins', sans-serif; background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab); background-size: 400% 400%; animation: gradientBG 15s ease infinite; min-height: 100vh; display: flex; justify-content: center; padding: 20px; }
+        @keyframes gradientBG { 0% {background-position: 0% 50%;} 50% {background-position: 100% 50%;} 100% {background-position: 0% 50%;} }
+        .container { width: 100%; max-width: 450px; }
+        .card { background: var(--glass); backdrop-filter: blur(15px); padding: 25px; border-radius: 24px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); margin-bottom: 20px; border: 1px solid rgba(255,255,255,0.4); }
+        .today-info { text-align: center; margin-bottom: 20px; background: rgba(108, 92, 231, 0.1); padding: 15px; border-radius: 15px; }
+        .today-info h1 { margin: 0; color: var(--accent); font-size: 2.5rem; }
+        label { display: block; margin: 15px 0 5px; font-weight: 600; font-size: 0.8rem; color: #444; }
+        input, select { width: 100%; padding: 12px; border: none; border-radius: 12px; background: rgba(255,255,255,0.6); font-size: 1rem; box-sizing: border-box; }
+        button { width: 100%; padding: 15px; border: none; border-radius: 12px; cursor: pointer; font-weight: 700; margin-top: 15px; transition: 0.3s; }
+        .btn-save { background: var(--accent); color: white; }
+        .btn-wa { background: var(--wa); color: white; margin-top: 20px; }
+        .btn-reset { background: transparent; color: var(--danger); border: 1px solid var(--danger); font-size: 0.8rem; }
+        .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 15px 0; }
+        .stat-item { background: white; padding: 10px; border-radius: 12px; text-align: center; }
+        .indiv-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid rgba(0,0,0,0.05); }
     </style>
 </head>
 <body>
@@ -126,14 +29,14 @@
 <div class="container">
     <div class="card">
         <div class="today-info">
-            <p>Today's Total Meals</p>
+            <p style="margin:0; font-size:0.8rem; font-weight:bold;">TODAY'S TOTAL MEALS</p>
             <h1 id="todayTotal">0.0</h1>
         </div>
 
-        <label>Entry Type</label>
+        <label>Category</label>
         <select id="entryType" onchange="toggleFields()">
-            <option value="meal">🍽️ Log Meal</option>
-            <option value="bazar">💰 Log Bazar</option>
+            <option value="meal">🍽️ Meal Count</option>
+            <option value="bazar">💰 Bazar Expense</option>
         </select>
 
         <label>Date</label>
@@ -144,42 +47,38 @@
             <select id="userName">
                 <option>Farhan</option><option>Liaan</option><option>Turjo</option><option>Nafis</option>
             </select>
-            <label>Meal Count (0 or more)</label>
+            <label>Count (Positive Number)</label>
             <input type="number" step="0.1" min="0" id="mealCount" placeholder="e.g. 1.0">
         </div>
 
         <div id="bazarSection" style="display:none;">
-            <label>Investor (Who Paid?)</label>
+            <label>Investor</label>
             <select id="bazarPayer">
                 <option>Farhan</option><option>Liaan</option><option>Turjo</option><option>Nafis</option>
             </select>
-            <label>Description</label>
-            <input type="text" id="bazarDesc" placeholder="Items bought...">
+            <label>Bazar Item</label>
+            <input type="text" id="bazarDesc" placeholder="e.g. Rice, Chicken">
             <label>Cost</label>
             <input type="number" id="bazarCost" placeholder="0.00">
         </div>
 
         <button class="btn-save" id="saveBtn" onclick="submitData()">Save Activity</button>
-        <button class="btn-calc" onclick="showSummary()">View Analytics</button>
+        <button style="background:white; color:var(--accent); border:1px solid var(--accent)" onclick="showSummary()">View Full Summary</button>
     </div>
 
-    <div id="lastEntryStatus">Syncing with Sheets...</div>
+    <div id="lastEntryStatus" style="text-align:center; color:white; font-size:0.75rem; font-style:italic;">Syncing...</div>
 
     <div id="summaryBox" class="card" style="display:none;">
-        <h3>Calculations</h3>
+        <h3>Period Analytics</h3>
         <div id="summaryContent"></div>
-        <button class="btn-reset" onclick="archiveAndReset()">Archive & Reset Period</button>
+        <button class="btn-wa" onclick="shareToWhatsApp()">📲 Share to WhatsApp Group</button>
+        <button class="btn-reset" onclick="protectedReset()">Archive & Reset Period (Admin Only)</button>
     </div>
 </div>
 
 <script>
-    // 1. UPDATE THIS URL
-    const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbw6UN5HbqqnOUMOQgwx2TIyK0ewvcoTBG6G_EDKP5gis_TeUBj81rMYDzD1buB51Fjn/exec";
-
-    // Initialize Date
+    const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwi5kbgq4qhozkXAWyiAgAOW14kU4BtR8l7vFh1UpXP3v7OWW8T6ir--RIU2onsA04/exec"; // <--- CHANGE THIS
     document.getElementById('entryDate').valueAsDate = new Date();
-
-    // Load Data on Startup
     window.onload = refreshStatus;
 
     function toggleFields() {
@@ -189,83 +88,61 @@
     }
 
     async function refreshStatus() {
-        try {
-            const response = await fetch(WEB_APP_URL);
-            const data = await response.json();
-            document.getElementById('todayTotal').innerText = data.todayMeals;
-            document.getElementById('lastEntryStatus').innerText = "Last Entry: " + data.lastEntry;
-            window.currentData = data; // Cache data for summary
-        } catch (e) {
-            document.getElementById('lastEntryStatus').innerText = "Last Entry: System Offline";
-        }
+        const response = await fetch(WEB_APP_URL);
+        const data = await response.json();
+        document.getElementById('todayTotal').innerText = data.todayMeals;
+        document.getElementById('lastEntryStatus').innerText = "Last Activity: " + data.lastEntry;
+        window.currentData = data;
     }
 
     async function submitData() {
         const type = document.getElementById('entryType').value;
-        const date = document.getElementById('entryDate').value;
-        let payload = { type: type, date: date };
-
-        if (type === 'meal') {
-            const count = parseFloat(document.getElementById('mealCount').value);
-            if (isNaN(count) || count < 0) return alert("Enter a valid meal count");
+        let payload = { type: type, date: document.getElementById('entryDate').value };
+        if(type === 'meal') {
             payload.name = document.getElementById('userName').value;
-            payload.mealCount = count;
+            payload.mealCount = parseFloat(document.getElementById('mealCount').value || 0);
         } else {
             payload.payer = document.getElementById('bazarPayer').value;
-            payload.description = document.getElementById('bazarDesc').value || "Bazar";
+            payload.description = document.getElementById('bazarDesc').value;
             payload.cost = parseFloat(document.getElementById('bazarCost').value || 0);
         }
-
-        const btn = document.getElementById('saveBtn');
-        btn.innerText = "Saving...";
-        btn.disabled = true;
-
-        try {
-            await fetch(WEB_APP_URL, { method: "POST", mode: "no-cors", body: JSON.stringify(payload) });
-            btn.innerText = "Success! 🎉";
-            setTimeout(() => {
-                location.reload();
-            }, 1000);
-        } catch (e) {
-            alert("Error saving data");
-            btn.disabled = false;
-            btn.innerText = "Save Activity";
-        }
+        document.getElementById('saveBtn').innerText = "Saving...";
+        await fetch(WEB_APP_URL, { method: "POST", mode: "no-cors", body: JSON.stringify(payload) });
+        location.reload();
     }
 
     function showSummary() {
-        if (!window.currentData) return alert("Loading data, please wait...");
         const data = window.currentData;
         const box = document.getElementById('summaryBox');
         const content = document.getElementById('summaryContent');
         box.style.display = "block";
-        
         content.innerHTML = `
             <div class="stat-grid">
                 <div class="stat-item"><span>Total Bazar</span><b>৳${data.totalBazar}</b></div>
                 <div class="stat-item"><span>Total Meals</span><b>${data.totalMeals}</b></div>
             </div>
-            <div class="stat-item" style="margin: 15px 0"><span>Meal Rate</span><b style="font-size: 1.5rem; color: var(--accent)">৳${data.perMealCost}</b></div>
-            <h4 style="margin: 20px 0 10px; font-size: 0.9rem; text-transform: uppercase;">Individual Bills:</h4>
+            <div class="stat-item" style="margin-bottom:20px"><span>Meal Rate</span><b style="font-size:1.5rem">৳${data.perMealCost}</b></div>
         `;
-        
         for (let name in data.individual) {
             let bill = (data.individual[name] * data.perMealCost).toFixed(2);
-            content.innerHTML += `
-                <div class="indiv-row">
-                    <span>${name} (${data.individual[name]} meals)</span>
-                    <b>৳${bill}</b>
-                </div>
-            `;
+            content.innerHTML += `<div class="indiv-row"><span>${name} (${data.individual[name]})</span><b>৳${bill}</b></div>`;
         }
-        box.scrollIntoView({behavior: 'smooth'});
     }
 
-    async function archiveAndReset() {
-        if(!confirm("Are you sure? This will archive all current data and reset the month.")) return;
-        document.getElementById('lastEntryStatus').innerText = "Archiving...";
-        await fetch(WEB_APP_URL, { method: "POST", mode: "no-cors", body: JSON.stringify({ type: "reset" }) });
-        location.reload();
+    function shareToWhatsApp() {
+        const d = window.currentData;
+        let msg = `*📊 MESS SUMMARY REPORT*\n--------------------------\n💰 Total Bazar: ৳${d.totalBazar}\n🍽️ Total Meals: ${d.totalMeals}\n🔥 Meal Rate: *৳${d.perMealCost}*\n--------------------------\n`;
+        for (let n in d.individual) { msg += `👤 ${n}: *৳${(d.individual[n]*d.perMealCost).toFixed(2)}*\n`; }
+        window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, '_blank');
+    }
+
+    async function protectedReset() {
+        if(prompt("Enter Admin Password:") === "560151") {
+            if(confirm("Archive all data?")) {
+                await fetch(WEB_APP_URL, { method: "POST", mode: "no-cors", body: JSON.stringify({type:"reset"}) });
+                location.reload();
+            }
+        } else { alert("Wrong Password!"); }
     }
 </script>
 </body>
