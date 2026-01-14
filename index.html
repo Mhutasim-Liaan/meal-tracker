@@ -21,12 +21,7 @@
         .btn-save { background: var(--accent); color: white; }
         .btn-wa { background: var(--wa); color: white; }
         .btn-reset { background: transparent; color: var(--danger); border: 1px solid var(--danger); font-size: 0.8rem; }
-        .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 15px 0; }
-        .stat-item { background: white; padding: 10px; border-radius: 12px; text-align: center; }
-        .indiv-card { background: rgba(255,255,255,0.5); padding: 12px; border-radius: 15px; margin-bottom: 10px; border: 1px solid #eee; }
-        .indiv-row { display: flex; justify-content: space-between; font-size: 0.85rem; margin-top: 5px; }
-        .balance-plus { color: var(--plus); font-weight: bold; }
-        .balance-minus { color: var(--danger); font-weight: bold; }
+        .msg-item { background: white; padding: 8px; border-radius: 8px; margin-bottom: 5px; font-size: 0.8rem; border-left: 4px solid var(--accent); }
     </style>
 </head>
 <body>
@@ -43,44 +38,43 @@
         <select id="entryType" onchange="toggleFields()">
             <option value="meal">🍽️ Meal Count</option>
             <option value="bazar">💰 Bazar Expense</option>
+            <option value="message">💬 Send Message</option>
         </select>
 
-        <label>Date</label>
-        <input type="date" id="entryDate">
+        <div id="dateDiv"><label>Date</label><input type="date" id="entryDate"></div>
 
         <div id="mealSection">
             <label>Name</label>
-            <select id="userName">
-                <option value="" disabled selected>Choose Name</option>
-                <option>Farhan</option><option>Liaan</option><option>Turjo</option><option>Nafis</option>
-            </select>
-            <label>Count</label>
-            <input type="number" step="0.1" min="0" id="mealCount" placeholder="0.0">
+            <select id="userName"><option value="" disabled selected>Choose Name</option><option>Farhan</option><option>Liaan</option><option>Turjo</option><option>Nafis</option></select>
+            <label>Count</label><input type="number" step="0.1" id="mealCount" placeholder="0.0">
         </div>
 
         <div id="bazarSection" style="display:none;">
-            <label>Investor (Who Paid?)</label>
-            <select id="bazarPayer">
-                <option value="" disabled selected>Choose Name</option>
-                <option>Farhan</option><option>Liaan</option><option>Turjo</option><option>Nafis</option>
-            </select>
-            <label>Description</label>
-            <input type="text" id="bazarDesc" placeholder="e.g. Rice, Tel">
-            <label>Amount (৳)</label>
-            <input type="number" id="bazarCost" placeholder="0.00">
+            <label>Investor</label>
+            <select id="bazarPayer"><option value="" disabled selected>Choose Name</option><option>Farhan</option><option>Liaan</option><option>Turjo</option><option>Nafis</option></select>
+            <label>Description</label><input type="text" id="bazarDesc" placeholder="Rice, Oil...">
+            <label>Amount (৳)</label><input type="number" id="bazarCost" placeholder="0.00">
         </div>
 
-        <button class="btn-save" id="saveBtn" onclick="submitData()">Save Activity</button>
+        <div id="msgSection" style="display:none;">
+            <label>Your Message</label>
+            <input type="text" id="globalMsg" placeholder="e.g. No lunch for me today">
+        </div>
+
+        <button class="btn-save" id="saveBtn" onclick="submitData()">Submit Entry</button>
         <button style="background:white; color:var(--accent); border:1px solid var(--accent)" onclick="showSummary()">View Full Summary</button>
     </div>
 
-    <div id="lastEntryStatus" style="text-align:center; color:white; font-size:0.7rem; margin-bottom:20px;">System Connected</div>
+    <div class="card">
+        <h3 style="margin:0 0 10px 0; font-size:1rem; color:var(--accent)">💬 Live Message Board</h3>
+        <div id="displayMessages" style="max-height:150px; overflow-y:auto;">Loading notes...</div>
+    </div>
 
     <div id="summaryBox" class="card" style="display:none;">
         <h3 style="margin-top:0">Final Calculations</h3>
         <div id="summaryContent"></div>
-        <button class="btn-wa" onclick="shareToWhatsApp()">📲 Send Summary to WhatsApp</button>
-        <button class="btn-reset" onclick="protectedReset()">Archive & Reset Period (Admin Only)</button>
+        <button class="btn-wa" onclick="shareToWhatsApp()">📲 WhatsApp Report</button>
+        <button class="btn-reset" onclick="protectedReset()">Reset Period (Admin)</button>
     </div>
 </div>
 
@@ -90,40 +84,45 @@
     window.onload = refreshStatus;
 
     function toggleFields() {
-        const isMeal = document.getElementById('entryType').value === 'meal';
-        document.getElementById('mealSection').style.display = isMeal ? 'block' : 'none';
-        document.getElementById('bazarSection').style.display = isMeal ? 'none' : 'block';
+        const type = document.getElementById('entryType').value;
+        document.getElementById('mealSection').style.display = type === 'meal' ? 'block' : 'none';
+        document.getElementById('bazarSection').style.display = type === 'bazar' ? 'block' : 'none';
+        document.getElementById('msgSection').style.display = type === 'message' ? 'block' : 'none';
+        document.getElementById('dateDiv').style.display = type === 'message' ? 'none' : 'block';
     }
 
     async function refreshStatus() {
-        try {
-            const response = await fetch(WEB_APP_URL);
-            const data = await response.json();
-            document.getElementById('todayTotal').innerText = data.todayMeals;
-            let bHTML = "";
-            for (let name in data.stats) {
-                if(data.stats[name].today > 0) bHTML += `<span>${name}: <b>${data.stats[name].today}</b></span>`;
-            }
-            document.getElementById('todayBreakdown').innerHTML = bHTML || "No meals yet today";
-            window.currentData = data;
-        } catch(e) { console.error("Syncing..."); }
+        const response = await fetch(WEB_APP_URL);
+        const data = await response.json();
+        window.currentData = data;
+        document.getElementById('todayTotal').innerText = data.todayMeals;
+        let bHTML = "";
+        for (let n in data.stats) { if(data.stats[n].today > 0) bHTML += `<span>${n}: <b>${data.stats[n].today}</b></span>`; }
+        document.getElementById('todayBreakdown').innerHTML = bHTML || "No meals today";
+        
+        document.getElementById('displayMessages').innerHTML = data.messages.length ? 
+            data.messages.map(m => `<div class="msg-item"><b>[${m.time}]</b> ${m.text}</div>`).join('') : "No messages.";
     }
 
     async function submitData() {
         const type = document.getElementById('entryType').value;
-        let payload = { type: type, date: document.getElementById('entryDate').value };
+        let payload = { type: type };
         if(type === 'meal') {
-            const n = document.getElementById('userName').value;
-            if(!n) return alert("Select Name!");
-            payload.name = n;
-            payload.mealCount = parseFloat(document.getElementById('mealCount').value || 0);
+            payload.name = document.getElementById('userName').value;
+            payload.mealCount = document.getElementById('mealCount').value;
+            payload.date = document.getElementById('entryDate').value;
+            if(!payload.name || !payload.mealCount) return alert("Fill all fields");
+        } else if(type === 'bazar') {
+            payload.payer = document.getElementById('bazarPayer').value;
+            payload.cost = document.getElementById('bazarCost').value;
+            payload.description = document.getElementById('bazarDesc').value;
+            payload.date = document.getElementById('entryDate').value;
+            if(!payload.payer || !payload.cost) return alert("Fill all fields");
         } else {
-            const p = document.getElementById('bazarPayer').value;
-            if(!p) return alert("Select Investor!");
-            payload.payer = p;
-            payload.description = document.getElementById('bazarDesc').value || "Bazar";
-            payload.cost = parseFloat(document.getElementById('bazarCost').value || 0);
+            payload.text = document.getElementById('globalMsg').value;
+            if(!payload.text) return alert("Type a message");
         }
+
         document.getElementById('saveBtn').innerText = "Saving...";
         await fetch(WEB_APP_URL, { method: "POST", mode: "no-cors", body: JSON.stringify(payload) });
         location.reload();
@@ -131,30 +130,14 @@
 
     function showSummary() {
         const d = window.currentData;
-        const box = document.getElementById('summaryBox');
-        box.style.display = "block";
-        let content = `
-            <div class="stat-grid">
-                <div class="stat-item"><span>Total Bazar</span><b>৳${d.totalBazar}</b></div>
-                <div class="stat-item"><span>Total Meals</span><b>${d.totalMeals}</b></div>
-            </div>
-            <div class="stat-item" style="margin-bottom:15px"><span>Meal Rate</span><b style="color:var(--accent); font-size:1.4rem">৳${d.perMealCost}</b></div>
-        `;
-        
-        for (let name in d.stats) {
-            let u = d.stats[name];
-            let bill = u.meals * d.perMealCost;
-            let bal = u.invested - bill;
-            content += `
-                <div class="indiv-card">
-                    <div style="font-weight:bold;">${name}</div>
-                    <div class="indiv-row"><span>Meals: ${u.meals}</span><span>Bill: ৳${bill.toFixed(2)}</span></div>
-                    <div class="indiv-row"><span>Invested: ৳${u.invested}</span></div>
-                    <div style="text-align:right; margin-top:5px;" class="${bal >= 0 ? 'balance-plus' : 'balance-minus'}">
-                        ${bal >= 0 ? 'Receives: ৳' : 'Owes: ৳'}${Math.abs(bal).toFixed(2)}
-                    </div>
-                </div>
-            `;
+        const box = document.getElementById('summaryBox'); box.style.display = "block";
+        let content = `<div style="text-align:center; margin-bottom:15px">Rate: <b>৳${d.perMealCost}</b></div>`;
+        for (let n in d.stats) {
+            let u = d.stats[n]; let bill = u.meals * d.perMealCost; let bal = u.invested - bill;
+            content += `<div style="margin-bottom:10px; padding:10px; background:white; border-radius:10px;">
+                <b>${n}</b>: Spent ৳${u.invested} | Bill ৳${bill.toFixed(2)}<br>
+                <span style="color:${bal >= 0 ? 'green':'red'}">${bal >= 0 ? 'Receives':'Owes'}: ৳${Math.abs(bal).toFixed(2)}</span>
+            </div>`;
         }
         document.getElementById('summaryContent').innerHTML = content;
         box.scrollIntoView({behavior: 'smooth'});
@@ -162,22 +145,18 @@
 
     function shareToWhatsApp() {
         const d = window.currentData;
-        let msg = `*📊 MESS FINAL SUMMARY*\n--------------------------\n💰 Total Bazar: ৳${d.totalBazar}\n🍽️ Total Meals: ${d.totalMeals}\n🔥 Meal Rate: *৳${d.perMealCost}*\n\n*👤 SETTLEMENTS:*\n`;
-        for (let name in d.stats) {
-            let u = d.stats[name];
-            let bill = u.meals * d.perMealCost;
-            let bal = u.invested - bill;
-            msg += `*${name}* (${u.meals} meals)\nSpent: ৳${u.invested} | Bill: ৳${bill.toFixed(2)}\n${bal >= 0 ? '✅ Gets Back' : '❌ Must Pay'}: *৳${Math.abs(bal).toFixed(2)}*\n\n`;
+        let msg = `*MESS REPORT*\nRate: ৳${d.perMealCost}\n\n`;
+        for (let n in d.stats) {
+            let u = d.stats[n]; let bill = u.meals * d.perMealCost; let bal = u.invested - bill;
+            msg += `*${n}*: ${bal >= 0 ? 'Gets':'Owes'} ৳${Math.abs(bal).toFixed(2)}\n`;
         }
         window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, '_blank');
     }
 
     async function protectedReset() {
-        if(prompt("Enter Admin Password:") === "560151") {
-            if(confirm("Reset all data?")) {
-                await fetch(WEB_APP_URL, { method: "POST", mode: "no-cors", body: JSON.stringify({type:"reset"}) });
-                location.reload();
-            }
+        if(prompt("Pass:") === "560151") {
+            await fetch(WEB_APP_URL, { method: "POST", mode: "no-cors", body: JSON.stringify({type:"reset"}) });
+            location.reload();
         }
     }
 </script>
