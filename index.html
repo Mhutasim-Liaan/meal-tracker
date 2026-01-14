@@ -77,12 +77,12 @@
         <h3 style="margin-top:0">Period Analytics</h3>
         <div id="summaryContent"></div>
         <button class="btn-wa" onclick="shareToWhatsApp()">📲 Send Summary to WhatsApp</button>
-        <button class="btn-reset" onclick="protectedReset()">Archive & Reset Period (560151)</button>
+        <button class="btn-reset" onclick="protectedReset()">Archive & Reset Period (Admin Only)</button>
     </div>
 </div>
 
 <script>
-    const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbyEUeQPiHhZuJDyh_MQM-h4KwG3ZlBgQb-WPILTT3uxt612rgWhAgJUW7kk5tkTPoi8/exec"; // <--- Update this!
+    const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbyEUeQPiHhZuJDyh_MQM-h4KwG3ZlBgQb-WPILTT3uxt612rgWhAgJUW7kk5tkTPoi8/exec"; 
     document.getElementById('entryDate').valueAsDate = new Date();
     window.onload = refreshStatus;
 
@@ -114,12 +114,12 @@
         
         if(type === 'meal') {
             const n = document.getElementById('userName').value;
-            if(!n) return alert("Select Name!");
+            if(!n) return alert("Please select your name!");
             payload.name = n;
             payload.mealCount = parseFloat(document.getElementById('mealCount').value || 0);
         } else {
             const p = document.getElementById('bazarPayer').value;
-            if(!p) return alert("Select Investor!");
+            if(!p) return alert("Please select who paid!");
             payload.payer = p;
             payload.description = document.getElementById('bazarDesc').value || "Bazar";
             payload.cost = parseFloat(document.getElementById('bazarCost').value || 0);
@@ -136,13 +136,13 @@
         box.style.display = "block";
         let content = `
             <div class="stat-grid">
-                <div class="stat-item"><span>Bazar</span><b>৳${d.totalBazar}</b></div>
-                <div class="stat-item"><span>Meals</span><b>${d.totalMeals}</b></div>
+                <div class="stat-item"><span>Total Bazar</span><b>৳${d.totalBazar}</b></div>
+                <div class="stat-item"><span>Total Meals</span><b>${d.totalMeals}</b></div>
             </div>
-            <div class="stat-item" style="margin-bottom:15px"><span>Meal Rate</span><b style="color:var(--accent); font-size:1.4rem">৳${d.perMealCost}</b></div>
+            <div class="stat-item" style="margin-bottom:15px"><span>Current Rate</span><b style="color:var(--accent); font-size:1.4rem">৳${d.perMealCost}</b></div>
         `;
         for (let n in d.individual) {
-            content += `<div class="indiv-row"><span>${n} (${d.individual[n]})</span><b>৳${(d.individual[n]*d.perMealCost).toFixed(2)}</b></div>`;
+            content += `<div class="indiv-row"><span>${n} (${d.individual[n]} meals)</span><b>৳${(d.individual[n]*d.perMealCost).toFixed(2)}</b></div>`;
         }
         document.getElementById('summaryContent').innerHTML = content;
         box.scrollIntoView({behavior: 'smooth'});
@@ -165,12 +165,17 @@
     }
 
     async function protectedReset() {
-        if(prompt("Enter Admin Password:") === "560151") {
-            if(confirm("Archive everything and reset?")) {
+        // The password is kept here in the code logic, not displayed on screen
+        const input = prompt("Enter Admin Password:");
+        if(input === "560151") {
+            if(confirm("This will archive all data and reset for a new period. Continue?")) {
+                document.getElementById('lastEntryStatus').innerText = "Resetting...";
                 await fetch(WEB_APP_URL, { method: "POST", mode: "no-cors", body: JSON.stringify({type:"reset"}) });
                 location.reload();
             }
-        } else { alert("Wrong Password!"); }
+        } else if (input !== null) { 
+            alert("Incorrect Password!"); 
+        }
     }
 </script>
 </body>
