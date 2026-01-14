@@ -6,7 +6,7 @@
     <title>Mess Manager Pro</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
-        :root { --glass: rgba(255, 255, 255, 0.85); --accent: #6c5ce7; --wa: #25D366; --danger: #ff7675; }
+        :root { --glass: rgba(255, 255, 255, 0.85); --accent: #6c5ce7; --wa: #25D366; --danger: #ff7675; --plus: #00b894; }
         body { margin: 0; font-family: 'Poppins', sans-serif; background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab); background-size: 400% 400%; animation: gradientBG 15s ease infinite; min-height: 100vh; display: flex; justify-content: center; padding: 20px; }
         @keyframes gradientBG { 0% {background-position: 0% 50%;} 50% {background-position: 100% 50%;} 100% {background-position: 0% 50%;} }
         .container { width: 100%; max-width: 450px; }
@@ -23,7 +23,10 @@
         .btn-reset { background: transparent; color: var(--danger); border: 1px solid var(--danger); font-size: 0.8rem; }
         .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 15px 0; }
         .stat-item { background: white; padding: 10px; border-radius: 12px; text-align: center; }
-        .indiv-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid rgba(0,0,0,0.05); font-size: 0.9rem; }
+        .indiv-card { background: rgba(255,255,255,0.5); padding: 12px; border-radius: 15px; margin-bottom: 10px; border: 1px solid #eee; }
+        .indiv-row { display: flex; justify-content: space-between; font-size: 0.85rem; margin-top: 5px; }
+        .balance-plus { color: var(--plus); font-weight: bold; }
+        .balance-minus { color: var(--danger); font-weight: bold; }
     </style>
 </head>
 <body>
@@ -33,7 +36,7 @@
         <div class="today-info">
             <p style="margin:0; font-size:0.75rem; font-weight:bold; color:#666;">TODAY'S TOTAL MEALS</p>
             <h1 id="todayTotal">0.0</h1>
-            <div class="breakdown" id="todayBreakdown">Loading...</div>
+            <div class="breakdown" id="todayBreakdown">Syncing...</div>
         </div>
 
         <label>Entry Type</label>
@@ -62,8 +65,8 @@
                 <option>Farhan</option><option>Liaan</option><option>Turjo</option><option>Nafis</option>
             </select>
             <label>Description</label>
-            <input type="text" id="bazarDesc" placeholder="e.g. Rice, Chicken">
-            <label>Amount</label>
+            <input type="text" id="bazarDesc" placeholder="What did you buy?">
+            <label>Amount (৳)</label>
             <input type="number" id="bazarCost" placeholder="0.00">
         </div>
 
@@ -71,18 +74,18 @@
         <button style="background:white; color:var(--accent); border:1px solid var(--accent)" onclick="showSummary()">View Full Summary</button>
     </div>
 
-    <div id="lastEntryStatus" style="text-align:center; color:white; font-size:0.7rem; margin-bottom:20px;">Checking Spreadsheet...</div>
+    <div id="lastEntryStatus" style="text-align:center; color:white; font-size:0.7rem; margin-bottom:20px;">System Ready</div>
 
     <div id="summaryBox" class="card" style="display:none;">
-        <h3 style="margin-top:0">Period Analytics</h3>
+        <h3 style="margin-top:0">Final Settlements</h3>
         <div id="summaryContent"></div>
-        <button class="btn-wa" onclick="shareToWhatsApp()">📲 Send Summary to WhatsApp</button>
+        <button class="btn-wa" onclick="shareToWhatsApp()">📲 Send Report to WhatsApp</button>
         <button class="btn-reset" onclick="protectedReset()">Archive & Reset Period (Admin Only)</button>
     </div>
 </div>
 
 <script>
-    const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbyEUeQPiHhZuJDyh_MQM-h4KwG3ZlBgQb-WPILTT3uxt612rgWhAgJUW7kk5tkTPoi8/exec"; 
+    const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzoYCi-KssF6d8Ipb0ztsjEqIs67CCnrIwUtuFxM14FX4MXUTECXJW9RZywJ7Qeb7QW/exec"; 
     document.getElementById('entryDate').valueAsDate = new Date();
     window.onload = refreshStatus;
 
@@ -97,15 +100,13 @@
             const response = await fetch(WEB_APP_URL);
             const data = await response.json();
             document.getElementById('todayTotal').innerText = data.todayMeals;
-            
             let bHTML = "";
-            for (let name in data.todayList) {
-                if(data.todayList[name] > 0) bHTML += `<span>${name}: <b>${data.todayList[name]}</b></span>`;
+            for (let name in data.stats) {
+                if(data.stats[name].today > 0) bHTML += `<span>${name}: <b>${data.stats[name].today}</b></span>`;
             }
-            document.getElementById('todayBreakdown').innerHTML = bHTML || "No meals yet today";
-            document.getElementById('lastEntryStatus').innerText = "System Synced";
+            document.getElementById('todayBreakdown').innerHTML = bHTML || "No meals logged today";
             window.currentData = data;
-        } catch(e) { document.getElementById('lastEntryStatus').innerText = "Sync Error"; }
+        } catch(e) { console.error("Sync Error", e); }
     }
 
     async function submitData() {
@@ -114,69 +115,51 @@
         
         if(type === 'meal') {
             const n = document.getElementById('userName').value;
-            if(!n) return alert("Please select your name!");
+            const c = parseFloat(document.getElementById('mealCount').value);
+            if(!n || isNaN(c)) return alert("Fill all fields correctly!");
             payload.name = n;
-            payload.mealCount = parseFloat(document.getElementById('mealCount').value || 0);
+            payload.mealCount = c;
         } else {
             const p = document.getElementById('bazarPayer').value;
-            if(!p) return alert("Please select who paid!");
+            const co = parseFloat(document.getElementById('bazarCost').value);
+            if(!p || isNaN(co)) return alert("Fill all fields correctly!");
             payload.payer = p;
             payload.description = document.getElementById('bazarDesc').value || "Bazar";
-            payload.cost = parseFloat(document.getElementById('bazarCost').value || 0);
+            payload.cost = co;
         }
 
-        document.getElementById('saveBtn').innerText = "Saving...";
+        const btn = document.getElementById('saveBtn');
+        btn.innerText = "Saving...";
+        btn.disabled = true;
+
         await fetch(WEB_APP_URL, { method: "POST", mode: "no-cors", body: JSON.stringify(payload) });
+        alert("Entry Saved!");
         location.reload();
     }
 
     function showSummary() {
         const d = window.currentData;
+        if(!d) return alert("Still loading data...");
         const box = document.getElementById('summaryBox');
         box.style.display = "block";
         let content = `
             <div class="stat-grid">
-                <div class="stat-item"><span>Total Bazar</span><b>৳${d.totalBazar}</b></div>
-                <div class="stat-item"><span>Total Meals</span><b>${d.totalMeals}</b></div>
+                <div class="stat-item"><span>Bazar</span><b>৳${d.totalBazar}</b></div>
+                <div class="stat-item"><span>Meals</span><b>${d.totalMeals}</b></div>
             </div>
-            <div class="stat-item" style="margin-bottom:15px"><span>Current Rate</span><b style="color:var(--accent); font-size:1.4rem">৳${d.perMealCost}</b></div>
+            <div class="stat-item" style="margin-bottom:15px"><span>Meal Rate</span><b style="color:var(--accent); font-size:1.4rem">৳${d.perMealCost}</b></div>
         `;
-        for (let n in d.individual) {
-            content += `<div class="indiv-row"><span>${n} (${d.individual[n]} meals)</span><b>৳${(d.individual[n]*d.perMealCost).toFixed(2)}</b></div>`;
-        }
-        document.getElementById('summaryContent').innerHTML = content;
-        box.scrollIntoView({behavior: 'smooth'});
-    }
-
-    function shareToWhatsApp() {
-        const d = window.currentData;
-        let msg = `*📊 MESS SUMMARY REPORT*\n--------------------------\n💰 Total Bazar: ৳${d.totalBazar}\n🍽️ Total Meals: ${d.totalMeals}\n🔥 Meal Rate: *৳${d.perMealCost}*\n\n*🛒 BAZAR DETAILS:*\n`;
         
-        d.bazarHistory.forEach(item => {
-            msg += `• ${item.desc}: ৳${item.cost} (${item.by})\n`;
-        });
-
-        msg += `\n*👤 INDIVIDUAL BILLS:*\n`;
-        for (let n in d.individual) {
-            msg += `- ${n}: *৳${(d.individual[n]*d.perMealCost).toFixed(2)}*\n`;
-        }
-        
-        window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, '_blank');
-    }
-
-    async function protectedReset() {
-        // The password is kept here in the code logic, not displayed on screen
-        const input = prompt("Enter Admin Password:");
-        if(input === "560151") {
-            if(confirm("This will archive all data and reset for a new period. Continue?")) {
-                document.getElementById('lastEntryStatus').innerText = "Resetting...";
-                await fetch(WEB_APP_URL, { method: "POST", mode: "no-cors", body: JSON.stringify({type:"reset"}) });
-                location.reload();
-            }
-        } else if (input !== null) { 
-            alert("Incorrect Password!"); 
-        }
-    }
-</script>
-</body>
-</html>
+        for (let name in d.stats) {
+            let u = d.stats[name];
+            let bill = u.meals * d.perMealCost;
+            let balance = u.invested - bill;
+            let balClass = balance >= 0 ? "balance-plus" : "balance-minus";
+            let balText = balance >= 0 ? "Gets Back: ৳" : "Owes: ৳";
+            
+            content += `
+                <div class="indiv-card">
+                    <div style="font-weight:bold; color:var(--accent);">${name}</div>
+                    <div class="indiv-row"><span>Meals: ${u.meals}</span><span>Bill: ৳${bill.toFixed(2)}</span></div>
+                    <div class="indiv-row"><span>Invested: ৳${u.invested.toFixed(2)}</span></div>
+                    <div style="text-align:right; margin-top:5px; font-size:0.9
