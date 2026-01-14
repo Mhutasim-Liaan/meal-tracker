@@ -6,22 +6,18 @@
     <title>Mess Manager Pro</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
-        :root { --glass: rgba(255, 255, 255, 0.85); --accent: #6c5ce7; --wa: #25D366; --danger: #ff7675; --plus: #00b894; }
-        body { margin: 0; font-family: 'Poppins', sans-serif; background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab); background-size: 400% 400%; animation: gradientBG 15s ease infinite; min-height: 100vh; display: flex; justify-content: center; padding: 20px; }
-        @keyframes gradientBG { 0% {background-position: 0% 50%;} 50% {background-position: 100% 50%;} 100% {background-position: 0% 50%;} }
+        :root { --glass: rgba(255, 255, 255, 0.9); --accent: #6c5ce7; --wa: #25D366; --danger: #ff7675; }
+        body { margin: 0; font-family: 'Poppins', sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; display: flex; justify-content: center; padding: 20px; }
         .container { width: 100%; max-width: 450px; }
-        .card { background: var(--glass); backdrop-filter: blur(15px); padding: 25px; border-radius: 24px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); margin-bottom: 20px; border: 1px solid rgba(255,255,255,0.4); }
-        .today-info { text-align: center; margin-bottom: 20px; background: rgba(108, 92, 231, 0.1); padding: 15px; border-radius: 15px; }
-        .today-info h1 { margin: 0; color: var(--accent); font-size: 2.5rem; }
-        .breakdown { font-size: 0.75rem; color: #444; margin-top: 10px; display: flex; justify-content: center; gap: 8px; flex-wrap: wrap; }
-        .breakdown span { background: white; padding: 2px 8px; border-radius: 10px; border: 1px solid #ddd; }
-        label { display: block; margin: 15px 0 5px; font-weight: 600; font-size: 0.8rem; color: #444; }
-        input, select { width: 100%; padding: 12px; border: none; border-radius: 12px; background: rgba(255,255,255,0.6); font-size: 1rem; box-sizing: border-box; }
+        .card { background: var(--glass); padding: 25px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); margin-bottom: 20px; }
+        .today-info { text-align: center; margin-bottom: 20px; }
+        .today-info h1 { margin: 0; color: var(--accent); font-size: 2.8rem; }
+        .note-item { background: #f0f2f5; padding: 10px; border-radius: 10px; margin-bottom: 8px; border-left: 4px solid var(--accent); font-size: 0.85rem; }
+        label { display: block; margin: 15px 0 5px; font-weight: 600; font-size: 0.8rem; }
+        input, select { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 10px; box-sizing: border-box; }
         button { width: 100%; padding: 15px; border: none; border-radius: 12px; cursor: pointer; font-weight: 700; margin-top: 15px; transition: 0.3s; }
         .btn-save { background: var(--accent); color: white; }
-        .btn-wa { background: var(--wa); color: white; }
-        .btn-reset { background: transparent; color: var(--danger); border: 1px solid var(--danger); font-size: 0.8rem; }
-        .msg-item { background: white; padding: 8px; border-radius: 8px; margin-bottom: 5px; font-size: 0.8rem; border-left: 4px solid var(--accent); }
+        .stat-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #eee; font-size: 0.9rem; }
     </style>
 </head>
 <body>
@@ -29,57 +25,53 @@
 <div class="container">
     <div class="card">
         <div class="today-info">
-            <p style="margin:0; font-size:0.75rem; font-weight:bold; color:#666;">TODAY'S TOTAL MEALS</p>
+            <p style="margin:0; font-size:0.8rem; font-weight:bold; color:#666;">TODAY'S TOTAL MEALS</p>
             <h1 id="todayTotal">0.0</h1>
-            <div class="breakdown" id="todayBreakdown">Syncing...</div>
+        </div>
+
+        <div id="mealNotesDisplay" style="margin-bottom:20px;">
+            <p style="font-size:0.75rem; font-weight:bold; color:var(--accent); margin-bottom:5px;">📋 TODAY'S REQUESTS & NOTES</p>
+            <div id="notesList">Loading notes...</div>
         </div>
 
         <label>Entry Type</label>
         <select id="entryType" onchange="toggleFields()">
-            <option value="meal">🍽️ Meal Count</option>
+            <option value="meal">🍽️ Log My Meal</option>
             <option value="bazar">💰 Bazar Expense</option>
-            <option value="message">💬 Send Message</option>
         </select>
 
-        <div id="dateDiv"><label>Date</label><input type="date" id="entryDate"></div>
+        <label>Date</label>
+        <input type="date" id="entryDate">
 
         <div id="mealSection">
-            <label>Name</label>
-            <select id="userName"><option value="" disabled selected>Choose Name</option><option>Farhan</option><option>Liaan</option><option>Turjo</option><option>Nafis</option></select>
-            <label>Count</label><input type="number" step="0.1" id="mealCount" placeholder="0.0">
+            <label>Who are you?</label>
+            <select id="userName"><option value="" disabled selected>Select Name</option><option>Farhan</option><option>Liaan</option><option>Turjo</option><option>Nafis</option></select>
+            <label>Meal Count (e.g. 1 or 0.5)</label>
+            <input type="number" step="0.1" id="mealCount" placeholder="0.0">
+            <label>Dish Request / Note (Optional)</label>
+            <input type="text" id="mealNote" placeholder="e.g. Cook Chicken Curry">
         </div>
 
         <div id="bazarSection" style="display:none;">
             <label>Investor</label>
-            <select id="bazarPayer"><option value="" disabled selected>Choose Name</option><option>Farhan</option><option>Liaan</option><option>Turjo</option><option>Nafis</option></select>
-            <label>Description</label><input type="text" id="bazarDesc" placeholder="Rice, Oil...">
-            <label>Amount (৳)</label><input type="number" id="bazarCost" placeholder="0.00">
+            <select id="bazarPayer"><option value="" disabled selected>Select Name</option><option>Farhan</option><option>Liaan</option><option>Turjo</option><option>Nafis</option></select>
+            <label>Item Name</label><input type="text" id="bazarDesc" placeholder="Rice, Oil...">
+            <label>Cost (৳)</label><input type="number" id="bazarCost" placeholder="0.00">
         </div>
 
-        <div id="msgSection" style="display:none;">
-            <label>Your Message</label>
-            <input type="text" id="globalMsg" placeholder="e.g. No lunch for me today">
-        </div>
-
-        <button class="btn-save" id="saveBtn" onclick="submitData()">Submit Entry</button>
+        <button class="btn-save" id="saveBtn" onclick="submitData()">Save & Update Board</button>
         <button style="background:white; color:var(--accent); border:1px solid var(--accent)" onclick="showSummary()">View Full Summary</button>
     </div>
 
-    <div class="card">
-        <h3 style="margin:0 0 10px 0; font-size:1rem; color:var(--accent)">💬 Live Message Board</h3>
-        <div id="displayMessages" style="max-height:150px; overflow-y:auto;">Loading notes...</div>
-    </div>
-
     <div id="summaryBox" class="card" style="display:none;">
-        <h3 style="margin-top:0">Final Calculations</h3>
+        <h3 style="margin-top:0">Monthly Analytics</h3>
         <div id="summaryContent"></div>
-        <button class="btn-wa" onclick="shareToWhatsApp()">📲 WhatsApp Report</button>
-        <button class="btn-reset" onclick="protectedReset()">Reset Period (Admin)</button>
+        <button class="btn-reset" style="background:#ff7675; color:white;" onclick="protectedReset()">Reset Period (Admin)</button>
     </div>
 </div>
 
 <script>
-    const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwjHBKRRzuUF0N8tTNB-TVSM4XIfJd8z1zYN9L_M_aMnmSa2w_o2oJeHTkvxKeE12GI/exec"; 
+    const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzFifAmHKWkOQKSjS1GpjePAJTlLYiae-nipulHT2KipmStorNwv1Wa23gIsBp1hsdY/exec"; 
     document.getElementById('entryDate').valueAsDate = new Date();
     window.onload = refreshStatus;
 
@@ -87,8 +79,6 @@
         const type = document.getElementById('entryType').value;
         document.getElementById('mealSection').style.display = type === 'meal' ? 'block' : 'none';
         document.getElementById('bazarSection').style.display = type === 'bazar' ? 'block' : 'none';
-        document.getElementById('msgSection').style.display = type === 'message' ? 'block' : 'none';
-        document.getElementById('dateDiv').style.display = type === 'message' ? 'none' : 'block';
     }
 
     async function refreshStatus() {
@@ -96,34 +86,30 @@
         const data = await response.json();
         window.currentData = data;
         document.getElementById('todayTotal').innerText = data.todayMeals;
-        let bHTML = "";
-        for (let n in data.stats) { if(data.stats[n].today > 0) bHTML += `<span>${n}: <b>${data.stats[n].today}</b></span>`; }
-        document.getElementById('todayBreakdown').innerHTML = bHTML || "No meals today";
         
-        document.getElementById('displayMessages').innerHTML = data.messages.length ? 
-            data.messages.map(m => `<div class="msg-item"><b>[${m.time}]</b> ${m.text}</div>`).join('') : "No messages.";
+        const notesDiv = document.getElementById('notesList');
+        notesDiv.innerHTML = data.todayNotes.length ? 
+            data.todayNotes.map(n => `<div class="note-item"><b>${n.name}:</b> ${n.note}</div>`).join('') : 
+            "<p style='color:#999; font-size:0.8rem;'>No notes for today yet.</p>";
     }
 
     async function submitData() {
         const type = document.getElementById('entryType').value;
-        let payload = { type: type };
+        let payload = { type: type, date: document.getElementById('entryDate').value };
+        
         if(type === 'meal') {
             payload.name = document.getElementById('userName').value;
             payload.mealCount = document.getElementById('mealCount').value;
-            payload.date = document.getElementById('entryDate').value;
-            if(!payload.name || !payload.mealCount) return alert("Fill all fields");
-        } else if(type === 'bazar') {
+            payload.note = document.getElementById('mealNote').value;
+            if(!payload.name || !payload.mealCount) return alert("Please fill name and meal count!");
+        } else {
             payload.payer = document.getElementById('bazarPayer').value;
             payload.cost = document.getElementById('bazarCost').value;
             payload.description = document.getElementById('bazarDesc').value;
-            payload.date = document.getElementById('entryDate').value;
-            if(!payload.payer || !payload.cost) return alert("Fill all fields");
-        } else {
-            payload.text = document.getElementById('globalMsg').value;
-            if(!payload.text) return alert("Type a message");
+            if(!payload.payer || !payload.cost) return alert("Fill all fields!");
         }
 
-        document.getElementById('saveBtn').innerText = "Saving...";
+        document.getElementById('saveBtn').innerText = "Updating...";
         await fetch(WEB_APP_URL, { method: "POST", mode: "no-cors", body: JSON.stringify(payload) });
         location.reload();
     }
@@ -131,30 +117,17 @@
     function showSummary() {
         const d = window.currentData;
         const box = document.getElementById('summaryBox'); box.style.display = "block";
-        let content = `<div style="text-align:center; margin-bottom:15px">Rate: <b>৳${d.perMealCost}</b></div>`;
+        let content = `<div style="text-align:center; margin-bottom:15px">Meal Rate: <b>৳${d.perMealCost}</b></div>`;
         for (let n in d.stats) {
             let u = d.stats[n]; let bill = u.meals * d.perMealCost; let bal = u.invested - bill;
-            content += `<div style="margin-bottom:10px; padding:10px; background:white; border-radius:10px;">
-                <b>${n}</b>: Spent ৳${u.invested} | Bill ৳${bill.toFixed(2)}<br>
-                <span style="color:${bal >= 0 ? 'green':'red'}">${bal >= 0 ? 'Receives':'Owes'}: ৳${Math.abs(bal).toFixed(2)}</span>
-            </div>`;
+            content += `<div class="stat-row"><span><b>${n}</b> (${u.meals} meals)</span> <span style="color:${bal >= 0 ? 'green':'red'}">${bal >= 0 ? 'Rec:':'Pay:'} ৳${Math.abs(bal).toFixed(0)}</span></div>`;
         }
         document.getElementById('summaryContent').innerHTML = content;
         box.scrollIntoView({behavior: 'smooth'});
     }
 
-    function shareToWhatsApp() {
-        const d = window.currentData;
-        let msg = `*MESS REPORT*\nRate: ৳${d.perMealCost}\n\n`;
-        for (let n in d.stats) {
-            let u = d.stats[n]; let bill = u.meals * d.perMealCost; let bal = u.invested - bill;
-            msg += `*${n}*: ${bal >= 0 ? 'Gets':'Owes'} ৳${Math.abs(bal).toFixed(2)}\n`;
-        }
-        window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, '_blank');
-    }
-
     async function protectedReset() {
-        if(prompt("Pass:") === "560151") {
+        if(prompt("Admin Pass:") === "560151") {
             await fetch(WEB_APP_URL, { method: "POST", mode: "no-cors", body: JSON.stringify({type:"reset"}) });
             location.reload();
         }
